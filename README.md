@@ -301,6 +301,8 @@ When sweeping A and C and a fixed B and D, there are multiple minimas that are s
 
 <img width="477" alt="image" src="https://user-images.githubusercontent.com/72291173/230871511-8d42eeaf-9443-4ace-9a43-bb8af39100e8.png">
 
+These results compared to question III were not too different, except for the polynomial fit. The training line and parabola errors for both III and IV were around 2, while the polynomial errors for both were below 0.2. In the testing data, while the line error stayed about the same for both III and IV, the parabola error had a bigger difference of about 4. However, the testing error for the polynomial error had a massive difference between III and IV, where the test error for question III was around 300 where the test error for question IV was 21 trillion. 
+
 ## Sec. V Summary and Conclusions
 
 This homework explored the impact of least-squares error on model fitting using a dataset of 31 points. A cosine function was used with linear and constant terms to fit the data while minimizing the error between the model predictions and the actual data. By finding the minimum error and the optimal values of the parameters, a 2D loss landscape was created to visualize how the error changes with different parameter values and identify any minima in the loss landscape.
