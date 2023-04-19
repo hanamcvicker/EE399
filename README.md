@@ -106,7 +106,7 @@ plt.ylabel('Image Index')
 ```
 
 ### Task (c)
-For this task, task (a) is repeated, but now the computed correlation matrix is a 10 x 10 correlation matrix betwen images and plotted.
+For this task, task (a) is repeated, but now the computed correlation matrix is a 10 x 10 correlation matrix between images and plotted.
 The image indices I am using are : [1, 313, 512, 5, 2400, 113, 1024, 87, 314, 2005]
 
 To start, I define what indices to extract:
