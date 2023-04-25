@@ -336,29 +336,63 @@ This process was then repeated on the easiest pair of Digits to Seperate, which 
 ## Sec. IV Computational Results
 
 ### Task 1)
-U is a matrix containing the left singular vectors of X, These vectors span the column space of X and are orthogonal to each other.
-S is a diagonal matrix containing the singular values of X. These values represent the importance of each singular vector in the decomposition of X.
-V is a matrix containing the right singular vectors of X. These vectors span the row space of X and are also orthogonal to each other.
-By applying the SVD to the transposed matrix of reshaped digit images, you are essentially representing the digit images as linear combinations of the left singular vectors, weighted by the singular values. This allows you to identify the most important features of the digit images, which can be useful for tasks such as classification, clustering, and dimensionality reduction.
+
+The result of task 1 is the created SVD on matrix X with vectors, U, S, and V. This will allow me to identify the most important features of the digit images.
+
 ### Task 2)
+In the graph shown below, I can visualize the singular value spectrum and see how many modes are necessary:
+
+<img width="572" alt="image" src="https://user-images.githubusercontent.com/72291173/234184747-f0de68a7-6887-4a67-b126-7e3148f01f7c.png">
+
+In the given graph, we can see that the singular values decrease rapidly and then level off around index 30. This suggests that I can approximate it well using only the first 30 singular values.
+
 ### Task 3)
-In other words, the U, Σ, and V matrices together provide a decomposition of the original data matrix into lower-dimensional subspaces that capture different aspects of the underlying structure and patterns in the data. This decomposition can be used for a variety of purposes, such as dimensionality reduction, data compression, and feature extraction.
+The U, S, and V matrices together provide a decomposition of the original data matrix into lower-dimensional subspaces that capture different aspects of the underlying structure and patterns in the data. The interpretation of the S matrix is shown above, while the interpretation of the U and V matrices are shown below, respectively:
 
-Based on your description of the plots, it appears that the left singular vectors (U) of the MNIST dataset are spread out as they go left, while the right singular vectors (V) form a large cluster. This suggests that the left singular vectors capture variability in the rows of the data matrix (i.e., the individual images of handwritten digits), while the right singular vectors capture variability in the columns of the data matrix (i.e., the individual pixels within each image).
+<img width="580" alt="image" src="https://user-images.githubusercontent.com/72291173/234185844-af632e5a-d0e2-45d1-ba93-cff3d5e82724.png">
 
-More specifically, the spread-out pattern of the left singular vectors suggests that they may capture patterns related to the shape, orientation, or style of the handwritten digits, while the clustering of the right singular vectors suggests that they may capture patterns related to the intensity, contrast, or positioning of the pixels within the images.
 
-Overall, the specific interpretation of the U, Σ, and V matrices in the context of the MNIST dataset would require further analysis and investigation, but the observed patterns in the plots suggest that the SVD is capturing important features and variability in the dataset.
+<img width="583" alt="image" src="https://user-images.githubusercontent.com/72291173/234185892-a4ea0337-3c60-4711-81d4-12ce2b997d22.png">
+
+
+The left singular vectors (U) of the MONIST dataset are spread out as they go left, while the right singular vectors (V) form a large cluster. This may be because the left singular vectors capture variability in the rows of the data matrix (i.e., the individual images of handwritten digits), while the right singular vectors capture variability in the columns of the data matrix (i.e., the individual pixels within each image). The spread-out pattern of the left singular vectors (U) as they go left suggests that they may capture patterns related to the shape, orientation, or style of the handwritten digits, while the clustering of the right singular vectors suggests that they may capture patterns related to the intensity, contrast, or positioning of the pixels within the images. The observed patterns in the plots suggest that the SVD is capturing important features and variability in the dataset.
 
 ### Task 4)
+The 3D plot has three selected V-modes (columns), where each point in the plot represents one digit image, and the position of the point in the 3D space is determined by the projection of that image onto the selected V-modes. The color of the point corresponds to the label of the digit, with each digit being assigned a unique color: 
 
+<img width="477" alt="image" src="https://user-images.githubusercontent.com/72291173/234186860-70882189-de0a-4793-8951-f46eabed3768.png">
 
-Each point in the plot represents one digit image, and the position of the point in the 3D space is determined by the projection of that image onto the selected V-modes. The color of the point corresponds to the label of the digit, with each digit being assigned a unique color.
 ### Task 5)
+Picking two digits 2 and 3, a linear classifier was built that can reasonably identify/classify them, with the training and testing accuracies shown below:
+
+<img width="476" alt="image" src="https://user-images.githubusercontent.com/72291173/234187182-ab6b22ef-27e8-4511-80d1-f3b8a2c3656d.png">
+
 ### Task 6)
-### Task 7)
-### Task 8)
+Picking three digits 1, 4, and 8, a linear classifier was built that can reasonably identify/classify them, with the training and testing accuracies shown below:
+
+<img width="421" alt="image" src="https://user-images.githubusercontent.com/72291173/234187276-8fc2fd4d-1cf3-4545-ab26-a1e65c2581ea.png">
+
+### Task 7) and 8)
+The two digits that appear to be the most difficult to seperate and easiest to seperate are shown below, with the accuracy as well
+
+<img width="735" alt="image" src="https://user-images.githubusercontent.com/72291173/234187686-2d1dc926-1ed4-4e76-a91c-569651505292.png">
+
 ### Task 9)
+The accuracy of how well the SVM and the Decision Tree Classifier seperate between all then digits is shown below:
+
+<img width="493" alt="image" src="https://user-images.githubusercontent.com/72291173/234187841-bf2bfc76-55ea-4d5b-b438-3973cedefff7.png">
+
+The decision tree classifier is also shown:
+
+![image](https://user-images.githubusercontent.com/72291173/234188015-ddf83cbc-229b-4486-a752-251b25904d8e.png)
+
+### Task 10)
+Comparing the  performance between the LDA, SVM, and the decision tree on the hardedst and easiest pair of digits to seperate (from above), the accuracies are shown:
+
+<img width="955" alt="image" src="https://user-images.githubusercontent.com/72291173/234188454-15d9ca93-df30-4a23-8379-794617177153.png">
+
+![image](https://user-images.githubusercontent.com/72291173/234188544-0c848094-33b8-4775-8a27-fbd09d2e6b45.png)
+
 ## Sec. V Summary and Conclusions
 
 
