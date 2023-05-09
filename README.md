@@ -193,8 +193,8 @@ In this code, I am performing PCA on a dataset ```X``` which contains images on 
 
 ### Part 1 of (ii)- Build a feed-forward neural network
 ### Part 2 of (ii)- Compare the results of the neural network against LSTM, SVM (support vector machines) and decision tree classifiers
-#### SVM
-#### Decision Tree Classifier
+#### SVM and Decision Tree Classifier
+This question was completed in the previous homework (Homework 3), so the code is exactly the same. The code implementation and description can be seen there, on task 
 #### LSTM
 
 ## Sec. IV Computational Results
