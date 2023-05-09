@@ -309,7 +309,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=100, 
 ```
 Next, I load the MNIST dataset and apply transformations, and create data loaders for the training and testing data.
 
-Initialize the LSTM network, define the loss function and optimizer
+Initialize the LSTM network, define the loss function and optimizer:
 ```
 model = LSTMNet(input_size=28, hidden_size=128, num_layers=2, num_classes=10)
 model = model.to(device)
