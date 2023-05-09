@@ -192,10 +192,168 @@ In this code, I am performing PCA on a dataset ```X``` which contains images on 
 ### (ii) Build a feed-forward neural network to classify the digits for the MNIST data set. Compare the results of the neural network against LSTM, SVM (support vector machines) and decision tree classifiers.
 
 ### Part 1 of (ii)- Build a feed-forward neural network
+Define the neural network architecture:
+```
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(784, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 784) # flatten the input image                         
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+```
+In this code, I define a neural network architecture to classify images from the MNIST dataset, which contains handwritten digits. The architecture consists of three fully connected layers, each with a different number of nodes. The first layer has 784 nodes, which corresponds to the number of pixels in each image. The output layer has 10 nodes, corresponding to the 10 possible classes (digits 0-9). The network uses ReLU activation function after each layer, except the output layer.
+
+Load the MNIST dataset and apply transformations:
+```
+train_dataset = datasets.MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
+test_dataset = datasets.MNIST(root='./data', train=False, transform=transforms.ToTensor())
+```
+I load the MNIST dataset and apply transformations, such as converting images to tensors. 
+
+Create data loaders:
+```
+train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+```
+ I create data loaders to batch and shuffle the data during training and testing.
+
+Initialize the network and define the loss function and optimizer
+```
+net = Net()
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
+```
+I initialize the network and define the loss function and optimizer. In this case, I use the Cross-Entropy Loss function, which is suitable for multi-class classification problems, and the stochastic gradient descent optimizer. 
+
+Train the network:
+```
+num_epochs = 10
+for epoch in range(num_epochs):
+    for i, (images, labels) in enumerate(train_loader):
+        optimizer.zero_grad()
+        outputs = net(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        
+        if (i+1) % 100 == 0:
+            print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, len(train_loader), loss.item()))
+```
+I train the network by iterating over the data batches for a specified number of epochs, computing the loss for each batch, backpropagating the error, and updating the weights using the optimizer. I print the loss every 100 steps to monitor the training progress. 
+
+Test the network:
+```
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in test_loader:
+        outputs = net(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+        
+    print('Accuracy of the network on the 10000 test images: {} %'.format(100 * correct / total))
+```
+ After training, I test the network on the test data to measure its accuracy. I iterate over the test data batches, compute the outputs, compare them to the labels, and calculate the number of correct predictions. Finally, I print the accuracy of the network on the 10000 test images.
+
 ### Part 2 of (ii)- Compare the results of the neural network against LSTM, SVM (support vector machines) and decision tree classifiers
+
 #### SVM and Decision Tree Classifier
-This question was completed in the previous homework (Homework 3), so the code is exactly the same. The code implementation and description can be seen there, on task 
+This question was completed in the previous homework (Homework 3), so the code is exactly the same. The code implementation and description can be seen there, on task 9.
+
 #### LSTM
+In this code, I am creating a Long Short-Term Memory (LSTM) neural network to perform image classification on the MNIST dataset.
+
+Check if CUDA is available and set PyTorch to use GPU or CPU:
+```
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+First, I check if CUDA is available to enable GPU acceleration.
+
+Define the LSTM network architecture:
+```
+class LSTMNet(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes):
+        super(LSTMNet, self).__init__()
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, x):
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device) 
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        
+        out, _ = self.lstm(x, (h0, c0))
+        out = self.fc(out[:, -1, :])
+        return out
+```
+Then, I define the LSTM network architecture using PyTorch. The LSTM network has an input size of 28, a hidden size of 128, 2 layers, and 10 output classes.
+
+Load the MNIST dataset and apply transformations:
+```
+train_dataset = datasets.MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
+test_dataset = datasets.MNIST(root='./data', train=False, transform=transforms.ToTensor())
+```
+Create data loaders:
+```
+train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=100, shuffle=True)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=100, shuffle=False)
+```
+Next, I load the MNIST dataset and apply transformations, and create data loaders for the training and testing data.
+
+Initialize the LSTM network, define the loss function and optimizer
+```
+model = LSTMNet(input_size=28, hidden_size=128, num_layers=2, num_classes=10)
+model = model.to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
+```
+ Then, I initialize the LSTM network, define the loss function as cross-entropy loss, and choose an optimizer as stochastic gradient descent with a learning rate of 0.001.
+
+Train the LSTM network:
+```
+num_epochs = 10
+for epoch in range(num_epochs):
+    for i, (images, labels) in enumerate(train_loader):
+        images = images.reshape(-1, 28, 28).to(device)
+        labels = labels.to(device)
+        
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        if (i+1) % 100 == 0:
+            print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, len(train_loader), loss.item()))
+```
+To train the LSTM network, I iterate over the training data for 10 epochs, with a batch size of 100, and calculate the loss, backpropagate the gradients, and update the model's weights. During training, I print out the current epoch, the current step, and the loss.
+
+Test the LSTM network:
+```
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in test_loader:
+        images = images.reshape(-1, 28, 28).to(device)
+        labels = labels.to(device)
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+        
+    print('Accuracy of the LSTM network on images: {} %'.format(100 * correct / total))
+```
+After training, I test the LSTM network on the testing data and calculate its accuracy. I iterate over the testing data with a batch size of 100, calculate the predicted labels, compare them to the ground truth labels, and calculate the percentage of correctly classified images. Finally, I print out the accuracy of the LSTM network on the testing data.
 
 ## Sec. IV Computational Results
 
