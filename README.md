@@ -356,7 +356,49 @@ with torch.no_grad():
 After training, I test the LSTM network on the testing data and calculate its accuracy. I iterate over the testing data with a batch size of 100, calculate the predicted labels, compare them to the ground truth labels, and calculate the percentage of correctly classified images. Finally, I print out the accuracy of the LSTM network on the testing data.
 
 ## Sec. IV Computational Results
+### Task I
+#### (i)
+The data was fit to a neural network that was used in the following tasks below
+#### (ii) Using the first 20 data points as training data, fit the neural network. Compute the least-square error for each of these over the training points. Then compute the least square error of these models on the test data which are the remaining 10 data points.
+The least - square error for each of the training points and the least square error of these models on the test data are shown below:
 
-I ii.) The average loss on the test data set provides an estimate of the model's performance on new, unseen data. If the average loss is high, it may indicate that the model is overfitting to the training data set and not generalizing well to new data.
+<img width="338" alt="image" src="https://user-images.githubusercontent.com/72291173/237007171-adfdb615-2570-4d19-baca-ae6103ea0c73.png">
+
+The average loss on the test data set provides an estimate of the model's performance on new, unseen data. The average loss is high, so it may be overfitting to the training dataset and not generalizing well to new data. I also may not have enough data for the neural network, so that is why the loss/error is so high. The training loss/error as seen above the testing loss/error is also very high.
+
+#### (iii) Repeating (ii) with different data points
+Results are shown below:
+
+<img width="342" alt="image" src="https://user-images.githubusercontent.com/72291173/237007977-663766d5-0cb2-46c3-b538-0976cab28a6a.png">
+
+In these results, we can see that the training loss in both part (ii) and part (iii) are pretty similar, as the numbers are pretty large throughout the training. However, the loss was a bit lower than part (ii), but still pretty high at around 13.0871. Again, this could be because there is not enough data to train the neural network.
+#### (iv) Compare the Models in Homework One to the neural networks in (ii) and (iii)
+In homework one from Question IV, the least squares error for the data is shown below:
+
+![IMG_9CFB9E32C5D3-1](https://user-images.githubusercontent.com/72291173/237009186-96b5fac3-29ca-4632-8705-51e94a78b685.jpeg)
+
+Here, we can see that the training data and test data from Homework One (other than the Polynomial Error for Test) are significantly lower than the neural networks created in this homework. This shows that neural networks are not the best for smaller datasets.
+
+### Task II
+#### (i) Compute the first 20 PCA modes of the Digit Images
+The results are shown below:
+
+<img width="990" alt="image" src="https://user-images.githubusercontent.com/72291173/237009913-cc5c5526-e9b5-4008-a091-919b65866482.png">
+
+![image](https://user-images.githubusercontent.com/72291173/237009984-1029449d-9774-4823-a541-73d8bb120954.png)
+
+#### (ii) Compare the Results of the Neural Network against LSTM, SVM, and Decision Tree Classifiers
+Neural Network Results:
+
+<img width="622" alt="image" src="https://user-images.githubusercontent.com/72291173/237010952-0f2e9d35-6498-4e24-bc2d-d2050cbb1d36.png">
+
+LSTM Results:
+
+<img width="372" alt="image" src="https://user-images.githubusercontent.com/72291173/237010679-ac6adef9-a8d7-463b-9f21-22c38821073d.png">
+
+SVM and Decision Tree Classifier Result:
+
+<img width="462" alt="image" src="https://user-images.githubusercontent.com/72291173/237010569-90537352-788a-49fd-b64d-6d7c77468c3f.png">
+
 ## Sec. V Summary and Conclusions
 
