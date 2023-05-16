@@ -310,4 +310,7 @@ The Results for the Models are shown below:
 
 <img width="317" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/8a73f1aa-a4c7-41dd-8a58-93bc2bbb7d06">
 
+As seen from the results, the training and loss is lowest in the ESN and RNN, as the losses are all three double digits. The FFNN and LSTM have training and testing losses that are triple digits, which show that those models are not best suited for predicting future states as wel as the ESN and RNN. 
+
 ## Sec. V Summary and Conclusions
+
