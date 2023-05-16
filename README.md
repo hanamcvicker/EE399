@@ -261,10 +261,11 @@ for epoch in range(30):
 This code is a loop where the model is optimized by minimizing the loss. The optimizer updates the model's parameters based on the computed gradients, gradually improving the model's performance as the epochs progress. The print statement provides periodic updates on the loss value during training, allowing for monitoring and evaluation of the model. 
 
 As shown, all of the models follow similar/ if not the same format:
-Creating model instance
-Defining loss function and optimizer
-Reshaping the input data
-Training the model
+
+- Creating model instance
+- Defining loss function and optimizer
+- Reshaping the input data
+- Training the model
 
 ### Testing
 Testing code for the FFNN:
