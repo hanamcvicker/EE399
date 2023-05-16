@@ -77,6 +77,131 @@ The integrate.odeint function is then used to numerically integrate the Lorenz s
 ```
 This section iterates over the generated trajectories and populates the input and output arrays with the corresponding data points. The loop runs 100 times, corresponding to the 100 trajectories. For each iteration, the input array (nn_input) is assigned a slice of the x_t array from the first data point to the second-to-last data point for the current trajectory. The output array (nn_output) is assigned a slice of the x_t array from the second data point to the last data point for the current trajectory. 
 
+After defining the lorenz function, I defined the activation functions below. Activation functions are crucial in neural networks as they introduce nonlinearity, enabling the network to learn complex patterns and relationships in the data.
+```
+def logsig(x):
+    return 1 / (1 + torch.exp(-x))
+
+def radbas(x):
+    return torch.exp(-torch.pow(x, 2))
+
+def purelin(x):
+    return x
+```
+The logsig function represents the logistic sigmoid activation function. It takes the input x and applies the sigmoid function to map the values to a range between 0 and 1, where the sigmoid function is defined as 1 / (1 + exp(-x)). By using the logsig activation function, the output is transformed into a probability or activation level, where values close to 0 approach 0 and values close to infinity approach 1
+
+The radbas function represents a radial basis function. It takes the input x and applies the exponential of the negative squared value of x to produce a bell-shaped curve. Mathematically, it is represented as exp(-x^2). The radbas activation function is commonly used in tasks such as pattern recognition and approximation. 
+
+The purelin function is a simple identity function. It returns the input x as the output without any transformation. 
+
+After defining the activation functions, I created each network by creating each of the models, and then training each one to advance the solution from t to t + ∆t for ρ = 10, 28 and 40 and then testing each one to see how well it works for future state prediction for ρ = 17 and ρ = 35. 
+
+Because the code is quite similar for the training and testing of each model, I will first go through the implementation of each network. 
+
+### Feed - Forward Neural Network Model
+The code for defining the FFNN is shown below:
+```
+class MyModel(nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.fc1 = nn.Linear(in_features=3, out_features=10)
+        self.fc2 = nn.Linear(in_features=10, out_features=10)
+        self.fc3 = nn.Linear(in_features=10, out_features=3)
+
+    def forward(self, x):
+        x = logsig(self.fc1(x))
+        x = radbas(self.fc2(x))
+        x = purelin(self.fc3(x))
+        return x
+```
+This code represents a three-layer feed-forward neural network. It takes an input x, passes it through the layers sequentially, applies different activation functions at each layer, and produces the final output of the network. In the constructor __init__, the model's architecture is defined. Three fully connected layers (nn.Linear) are created: self.fc1, self.fc2, and self.fc3. These layers specify the connectivity and number of neurons in each layer.
+
+In the forward method, the forward pass of the model is defined. The input x is fed through the layers in a sequential manner. The output of each layer is passed through an activation function before being fed into the next layer. The logsig function is applied to the output of self.fc1, the radbas function is applied to the output of self.fc2, and the purelin function is applied to the output of self.fc3. 
+
+### LSTM and RNN Model
+The code for defining the LSTM and RNN is shown below:
+```
+class LSTM(nn.Module):
+    def __init__(self, input_size=3, hidden_layer_size=10, output_size=3):
+        super().__init__()
+        self.hidden_layer_size = hidden_layer_size
+        self.lstm = nn.LSTM(input_size, hidden_layer_size, batch_first=True)
+        self.linear = nn.Linear(hidden_layer_size, output_size)
+
+    def forward(self, x):
+        h0 = torch.zeros(1, x.size(0), self.hidden_layer_size)
+        c0 = torch.zeros(1, x.size(0), self.hidden_layer_size)
+        out, _ = self.lstm(x, (h0, c0))
+        out = self.linear(out[:, -1, :])
+        return out
+```
+The code for defining the RNN is shown below:
+```
+class RNN(nn.Module):
+    def __init__(self, input_size=3, hidden_layer_size=10, output_size=3):
+        super().__init__()
+        self.hidden_layer_size = hidden_layer_size
+        self.rnn = nn.RNN(input_size, hidden_layer_size, batch_first=True)
+        self.linear = nn.Linear(hidden_layer_size, output_size)
+
+    def forward(self, x):
+        h0 = torch.zeros(1, x.size(0), self.hidden_layer_size)
+        out, _ = self.rnn(x, h0)
+        out = self.linear(out[:, -1, :])
+        return out
+```
+Both constructors takes input size, hidden layer size, and output size as parameters. The hidden layer size represents the number of hidden units or neurons in the model. The models also both have a recurrent layer followed by a linear layer. In the LSTM model, the recurrent layer is defined as ```self.lstm = nn.LSTM(input_size, hidden_layer_size, batch_first=True)```. In the RNN model, the recurrent layer is defined as ```self.rnn = nn.RNN(input_size, hidden_layer_size, batch_first=True)```. These recurrent layers implement the LSTM and RNN architectures, respectively. They take the input size, hidden layer size, and a ```batch_first=True argument```, indicating that the input data has the batch dimension as the first dimension.
+
+In the forward method of both models, the forward pass is defined. The input x is processed through the recurrent layer, capturing the temporal dependencies in the data. For the LSTM model, the initial hidden and cell states are initialized as zero tensors. The output of the recurrent layer is then passed through the linear layer (self.linear) to produce the final output. For the RNN model, only the initial hidden state is initialized as zero tensors. The rest of the process is similar, where the output of the recurrent layer is fed into the linear layer to produce the final output.
+
+### Echo State Model
+The code for defining the ESN is shown below:
+```
+class Reservoir(nn.Module):
+  def __init__(self, hidden_dim, connectivity):
+    super().__init__()
+    
+    self.Wx = self.sparse_matrix(hidden_dim, connectivity)
+    self.Wh = self.sparse_matrix(hidden_dim, connectivity)
+    self.Uh = self.sparse_matrix(hidden_dim, connectivity)
+    self.act = nn.Tanh()
+
+  def sparse_matrix(self, m, p):
+    mask_distribution = torch.distributions.Bernoulli(p)
+    S = torch.randn((m, m))
+    mask = mask_distribution.sample(S.shape)
+    S = (S*mask).to_sparse()
+    return S
+
+  def forward(self, x, h):
+    h = self.act(torch.sparse.mm(self.Uh, h.T).T +
+                 torch.sparse.mm(self.Wh, x.T).T)
+    y = self.act(torch.sparse.mm(self.Wx, h.T).T)
+
+    return y, h
+     
+class EchoState(nn.Module):
+  def __init__(self, in_dim, out_dim, reservoir_dim, connectivity):
+    super().__init__()
+
+    self.reservoir_dim = reservoir_dim
+    self.input_to_reservoir = nn.Linear(in_dim, reservoir_dim)
+    self.input_to_reservoir.requires_grad_(False)
+
+    self.reservoir = Reservoir(reservoir_dim, connectivity)
+    self.readout = nn.Linear(reservoir_dim, out_dim)
+  
+  def forward(self, x):
+    reservoir_in = self.input_to_reservoir(x)
+    h = torch.ones(x.size(0), self.reservoir_dim)
+    reservoirs = []
+    for i in range(x.size(1)):
+      out, h = self.reservoir(reservoir_in[:, i, :], h)
+      reservoirs.append(out.unsqueeze(1))
+    reservoirs = torch.cat(reservoirs, dim=1)
+    outputs = self.readout(reservoirs)
+    return outputs
+```
 ## Sec. IV Computational Results
 
 ## Sec. V Summary and Conclusions
