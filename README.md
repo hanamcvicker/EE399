@@ -202,6 +202,14 @@ class EchoState(nn.Module):
     outputs = self.readout(reservoirs)
     return outputs
 ```
+In the Reservoir class, the ```__init__``` method initializes the reservoir's parameters. It takes ```hidden_dim``` (the dimensionality of the reservoir) and ```connectivity``` (the sparsity of the reservoir connections) as arguments. The weight matrices ```Wx, Wh, and Uh ``` for the reservoir are initialized using the ```sparse_matrix``` method. The activation function ```act``` is set to hyperbolic tangent ```(nn.Tanh())```. The ```sparse_matrix``` method generates a sparse weight matrix with size ```m``` and sparsity probability ```p```. It first creates a random matrix ```S``` and then applies a binary mask obtained from a Bernoulli distribution to the random matrix. Finally, the sparse matrix is returned.
+
+The ```forward``` method performs the forward pass of the reservoir. It takes the input ```x``` and the reservoir state ```h``` as arguments. The method applies the reservoir dynamics by multiplying the input and reservoir state with the corresponding weight matrices using sparse matrix multiplication ```(torch.sparse.mm)```. The results are passed through the activation function ```act```. The output ```y``` is computed similarly. Finally, the output ```y``` and the updated state ```h``` are returned.
+
+In the EchoState class, the ```__init__ ``` method initializes the ESN's parameters. It takes ```in_dim ```(the dimensionality of the input), ```out_dim``` (the dimensionality of the output), ```reservoir_dim``` (the dimensionality of the reservoir), and ```connectivity``` (the sparsity of the reservoir connections) as arguments. It initializes the ```input-to-reservoir``` linear transformation ```input_to_reservoir``` and sets its gradients to be excluded from training. It also initializes the reservoir using the ```Reservoir``` class and sets up the readout layer (```readout```) to map from the reservoir to the output dimension.
+
+The ```forward``` method performs the forward pass of the ESN. It takes the input ```x``` as an argument. The input is first transformed using the ```input_to_reservoir``` linear layer. The initial reservoir state ```h``` is initialized as a tensor of ones. The reservoir dynamics are then applied iteratively for each time step in the input sequence. The input at each time step is processed by the reservoir, and the output of the reservoir is collected. The resulting reservoir outputs are concatenated along the time dimension. Finally, the concatenated reservoir outputs are passed through the readout layer to produce the final output.
+
 ## Sec. IV Computational Results
 
 ## Sec. V Summary and Conclusions
