@@ -285,5 +285,29 @@ This code evaluates the performance of the FFNN model for future state predictio
 As previously stated, the models follow the same format as the FFNN shown above. 
 
 ## Sec. IV Computational Results
+The Results for the Models are shown below:
+### FFNN
+
+<img width="182" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/3fb78d35-595d-42a3-8494-e0705d0e2916">
+
+<img width="317" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/4400cd6a-a2a2-4d13-a918-1773e3ffbefc">
+
+### LSTM
+
+<img width="204" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/f7285677-cada-41c6-92a5-cd3768c72d92">
+
+<img width="311" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/ecd6f6d1-3975-4b2d-8162-afac0af06748">
+
+### RNN
+
+<img width="183" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/e8cec56e-9cd6-48ef-9d19-3b0a147b58ba">
+
+<img width="325" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/7922e167-bfb6-4c93-bbd2-2176ec90f5a8">
+
+### ESN
+
+<img width="189" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/c57ac62a-80ec-41c0-a214-f8ed77838502">
+
+<img width="317" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/8a73f1aa-a4c7-41dd-8a58-93bc2bbb7d06">
 
 ## Sec. V Summary and Conclusions
