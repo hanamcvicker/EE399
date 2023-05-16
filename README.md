@@ -210,6 +210,80 @@ In the EchoState class, the ```__init__ ``` method initializes the ESN's paramet
 
 The ```forward``` method performs the forward pass of the ESN. It takes the input ```x``` as an argument. The input is first transformed using the ```input_to_reservoir``` linear layer. The initial reservoir state ```h``` is initialized as a tensor of ones. The reservoir dynamics are then applied iteratively for each time step in the input sequence. The input at each time step is processed by the reservoir, and the output of the reservoir is collected. The resulting reservoir outputs are concatenated along the time dimension. Finally, the concatenated reservoir outputs are passed through the readout layer to produce the final output.
 
+These Models are then used for the training and testing. Because the code for each model is very similar, I will explain the implementation of the training and testing code for the FFNN only. 
+
+### Training
+This code is not repeated in the other models, as all the training data is the same, so it is done where the FFNN model training is. 
+```
+# Generate training data
+rho_train = [10, 28, 40]
+nn_input = np.zeros((0, 3))
+nn_output = np.zeros_like(nn_input)
+
+for i, rho in enumerate(rho_train):
+        nn_input_rho, nn_output_rho = lorenz(rho)
+        nn_input = np.concatenate((nn_input, nn_input_rho))
+        nn_output = np.concatenate((nn_output, nn_output_rho))  
+ ```
+ This code constructs the training dataset by generating input-output pairs for the Lorenz system with different rho values. The resulting arrays, ```nn_input``` and ```nn_output```, hold the input and output data required for training the neural network.
+ 
+ 
+This code is repeated on the other models, with the same format
+ ```
+# Create model instance
+model = MyModel()
+```
+The model is defined using the ```MyModel``` class, which represents the feed-forward neural network in this example.
+```
+# Define loss function and optimizer
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+```
+The loss function is defined using nn.MSELoss(), the Mean Squared Error loss
+The optimizer is defined as stochastic gradient descent (SGD) with a learning rate of 0.01
+ ```
+# Convert numpy arrays to PyTorch tensors
+nn_input_torch = torch.from_numpy(nn_input).float()
+nn_output_torch = torch.from_numpy(nn_output).float()
+```
+This converts the numpy arrays to PyTorch tensors and made into the float data type
+
+```
+# Train the model
+for epoch in range(30):
+    optimizer.zero_grad()
+    outputs = model(nn_input_torch)
+    loss = criterion(outputs, nn_output_torch)
+    loss.backward()
+    optimizer.step()
+    print(f"Epoch {epoch+1}, loss={loss.item():.4f}")
+```
+This code is a loop where the model is optimized by minimizing the loss. The optimizer updates the model's parameters based on the computed gradients, gradually improving the model's performance as the epochs progress. The print statement provides periodic updates on the loss value during training, allowing for monitoring and evaluation of the model. 
+
+As shown, all of the models follow similar/ if not the same format:
+Creating model instance
+Defining loss function and optimizer
+Reshaping the input data
+Training the model
+
+### Testing
+Testing code for the FFNN:
+```
+# Testing for future state prediction for ρ = 17 and ρ = 35.
+test_values = [17, 35]
+
+for rho in test_values:
+    ffnn_test_input, ffnn_test_output = lorenz(rho)
+    ffnn_test_input = torch.from_numpy(ffnn_test_input).float()
+    ffnn_test_output = torch.from_numpy(ffnn_test_output).float()
+    ffnn_output_pred = model(ffnn_test_input)
+    loss = criterion(ffnn_output_pred, ffnn_test_output)
+    print('Loss for rho = ', rho, ': ', loss.item())
+```
+This code evaluates the performance of the FFNN model for future state prediction on the test data corresponding to different values of rho. It computes the loss between the predicted outputs and the target outputs, providing a measure of how well the model performs for each rho value. 
+
+As previously stated, the models follow the same format as the FFNN shown above. 
+
 ## Sec. IV Computational Results
 
 ## Sec. V Summary and Conclusions
