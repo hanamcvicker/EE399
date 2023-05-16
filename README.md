@@ -10,6 +10,15 @@ This project explores the use of neural networks for predicting future states of
 ## Sec. I Introduction and Overview
 The field of chaos theory, specifically in the context of the Lorenz equations, presents a unique challenge and opportunity for the application of machine learning techniques, such as neural networks, for predicting future states. The Lorenz equations are a system of three differential equations that demonstrate chaotic dynamics for certain parameter values. The complexity of these equations calls for innovative computational approaches, like neural networks, that can handle non-linearity and unpredictability, common characteristics of such systems. In this assignment, I aim to investigate the predictive potential of various neural network architectures focusing on the Lorenz equations. This network is trained to predict subsequent states of the Lorenz equations for specific ρ values (10, 28, and 40), and its performance is then evaluated for ρ values of 17 and 35. I also compare the feed-forward network with LSTM, RNN, and Echo State Networks to see which architecture has the most accurate forecasting for the dynamics of the Lorenz system.
 ## Sec. II Theoretical Background
+
+The Lorenz equations refer to a system of ordinary differential equations that describe the behavior of a simplified model of atmospheric convection: 
+```
+dx/dt = σ(y - x)
+dy/dt = x(ρ - z) - y
+dz/dt = xy - βz
+```
+x, y, and z represent the state variables of the system, which represent the convection currents in the atmosphere. The variables σ, ρ, and β are parameters that determine the behavior of the system.
+
 Feed-Forward Neural Networks
 Feed-forward neural networks (FNNs) are a fundamental type of artificial neural network widely used for various tasks in machine learning and pattern recognition. The architecture of an FNN consists of an input layer, one or more hidden layers, and an output layer. Information flows in a unidirectional manner, from the input layer through the hidden layers to the output layer, without any feedback connections.
 
