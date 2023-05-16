@@ -310,7 +310,7 @@ The Results for the Models are shown below:
 
 <img width="317" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/8a73f1aa-a4c7-41dd-8a58-93bc2bbb7d06">
 
-As seen from the results, the training and loss is lowest in the ESN and RNN, as the losses are all three double digits. The FFNN and LSTM have training and testing losses that are triple digits, which show that those models are not best suited for predicting future states as wel as the ESN and RNN. 
+As seen from the results, the training and loss is lowest in the ESN and RNN, as all three loses are double digits. The FFNN and LSTM have training and testing losses that are triple digits, which show that those models are not best suited for predicting future states as wel as the ESN and RNN. 
 
 ## Sec. V Summary and Conclusions
-
+In this assignment, I investigated the predictive potential of various neural network architectures for forecasting the dynamics of the Lorenz equations. The neural network models used in my assignment included a feed-forward neural network (FFNN), long short-term memory (LSTM) network, recurrent neural network (RNN), and echo state network (ESN). The goal was to determine which architecture performed the most accurate forecasting for different values of the parameter ρ. Based on the results, I concluded that the ESN and RNN architectures outperformed the FFNN and LSTM architectures for predicting future states of the Lorenz equations. The ESN and RNN models showed lower training and testing losses, indicating that they are able to capture the complex dynamics of the system more accurately. These results show that different models have distinct strengths and weaknesses, and need to be selected based on the specific problem at hand.
