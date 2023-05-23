@@ -153,6 +153,23 @@ results = np.array(results)
 ```
 This code generates a training validation and test datasets both for reconstruction of states and forecasting sensors. It then trains the model  and appends the results to the results list that was initialized previously. The results array is used to plot the data and show the results. Because this code is from the previous task and was already explained, I will not be explaining the implementation since it can be reread from above.
 
+For the next tasks, an analysis is done on the performance as a function of noise (adding Gaussian noise to the data) and as a function of the number of sensors. As I said previously, the process from the task above is the same for these tasks, so I will not be going in depth on the implementation. 
+
+For the analysis done in the performance as a function of noise (adding Gaussian noise to the data), the difference from the previous task is shown below as the first line of code in the forloop:
+```
+    # Add Gaussian noise to the data
+    noisy_X = transformed_X + np.random.normal(0, noise_level, transformed_X.shape)
+```
+In this code, Gaussian noise is added to the data. The transformed_X variable represents the transformed and scaled data, typically obtained through preprocessing steps. The np.random.normal(0, noise_level, transformed_X.shape) function generates random numbers from a Gaussian (normal) distribution. It creates an array with the same shape as transformed_X, where each element is sampled from a Gaussian distribution with a mean of 0 and a standard deviation defined by the noise_level parameter. The + operator adds the generated noise to transformed_X element-wise, resulting in the noisy_X array.
+
+
+For the analysis done in the performance as a function of the number of sensors, the difference from the previous task is shown below as the first line of code in the forloop:
+```
+# Select sensor locations randomly
+sensor_locations = np.random.choice(m, size=num_sensors, replace=False)
+```
+The line of code sensor_locations = np.random.choice(m, size=num_sensors, replace=False) selects sensor locations randomly from a pool of available locations. The function np.random.choice from the NumPy library is utilized, which samples num_sensors locations without replacement from the integers ranging from 0 to m-1. By setting replace=False, each location is chosen only once. This approach enables the random selection of a subset of sensor locations from a larger set of m available locations, allowing for further analysis or modeling on those specifically chosen sensors.
+
 ## Sec. IV Computational Results
  
 
