@@ -44,29 +44,57 @@ sklearn's MinMaxScaler is used to preprocess the data for training and we genera
 sc = MinMaxScaler()
 sc = sc.fit(load_X[train_indices])
 transformed_X = sc.transform(load_X)
+```
 
+An instance of the MinMaxScaler is created, and the scaler is fitted to the training data load_X[train_indices] using the fit() method. This step calculates the minimum and maximum values of the training data, which will be used for scaling.
+```
 ### Generate input sequences to a SHRED model
 all_data_in = np.zeros((n - lags, lags, num_sensors))
 for i in range(len(all_data_in)):
     all_data_in[i] = transformed_X[i:i+lags, sensor_locations]
+```
+An array all_data_in is initialized with zeros, with dimensions (n - lags, lags, num_sensors). This array will store the input sequences for the SHRED model. The subsequent loop iterates over each index in all_data_in. For each index i, the previous lags time steps of the transformed data transformed_X[i:i+lags, sensor_locations] are assigned to the i-th entry of all_data_in. This process generates the input sequences for the SHRED model.
 
+```
 ### Generate training validation and test datasets both for reconstruction of states and forecasting sensors
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 train_data_in = torch.tensor(all_data_in[train_indices], dtype=torch.float32).to(device)
 valid_data_in = torch.tensor(all_data_in[valid_indices], dtype=torch.float32).to(device)
 test_data_in = torch.tensor(all_data_in[test_indices], dtype=torch.float32).to(device)
+```
+Generate training, validation, and test datasets: The code determines whether a GPU (CUDA) is available and assigns the device variable accordingly.
+The train_data_in tensor is created as a PyTorch tensor from all_data_in by selecting the appropriate indices for the training set.
+The valid_data_in tensor is created as a PyTorch tensor from all_data_in by selecting the appropriate indices for the validation set.
+The test_data_in tensor is created as a PyTorch tensor from all_data_in by selecting the appropriate indices for the test set.\
 
+```
 ### -1 to have output be at the same time as final sensor measurements
 train_data_out = torch.tensor(transformed_X[train_indices + lags - 1], dtype=torch.float32).to(device)
 valid_data_out = torch.tensor(transformed_X[valid_indices + lags - 1], dtype=torch.float32).to(device)
 test_data_out = torch.tensor(transformed_X[test_indices + lags - 1], dtype=torch.float32).to(device)
-
 train_dataset = TimeSeriesDataset(train_data_in, train_data_out)
 valid_dataset = TimeSeriesDataset(valid_data_in, valid_data_out)
 test_dataset = TimeSeriesDataset(test_data_in, test_data_out)
 ```
+The first three lines of code contain indices train_indices + lags - 1, which represent the time steps in transformed_X that correspond to the output or target values for the training set. By adding lags - 1 to train_indices, indices are shifted to select the time steps that align with the final sensor measurements. The torch.tensor() function is used to create the tensor from the selected subset of transformed_X. The dtype=torch.float32 argument specifies that the tensor should have a floating-point data type. The .to(device) method is called on the tensor to move it to the specified device, which can be either 'cuda' (if a GPU is available) or 'cpu'. The lines valid_data_out and test_data_out create PyTorch tensors for the validation and test datasets using the corresponding indices (valid_indices and test_indices) and the same process. The  last three lines of code create dataset objects (train_dataset, valid_dataset, test_dataset) that combine the input sequences with their corresponding target or output values. These datasets will be used for training, validation, and testing the SHRED model, respectively.
 
+We train the model using the training and validation datasets.
+```
+shred = models.SHRED(num_sensors, m, hidden_size=64, hidden_layers=2, l1=350, l2=400, dropout=0.1).to(device)
+validation_errors = models.fit(shred, train_dataset, valid_dataset, batch_size=64, num_epochs=1000, lr=1e-3, verbose=True, patience=5)
+```
+In this code, we first instantiate the SHRED model by creating an instance of the SHRED class with specific parameters such as the number of sensors (num_sensors), the number of hidden units (hidden_size), the number of hidden layers (hidden_layers), and regularization terms (l1 and l2). The model is then moved to the designated device, either GPU (cuda) or CPU (cpu), using the .to(device) method.
+Next, we initiate the training process by calling the fit() function. This function takes the SHRED model (shred), the training dataset (train_dataset), and the validation dataset (valid_dataset) as inputs. Additional hyperparameters are specified, including the batch size (batch_size), the number of epochs (num_epochs), the learning rate (lr), the verbosity level (verbose), and the patience value for early stopping (patience). During training, the model iteratively updates its parameters to minimize the training loss and improve its performance on the validation set. The fit() function returns a list of validation errors or losses at each epoch, which can be used for further analysis or visualization. 
+
+Finally, we generate reconstructions from the test set and print mean square error compared to the ground truth.
+```
+test_recons = sc.inverse_transform(shred(test_dataset.X).detach().cpu().numpy())
+test_ground_truth = sc.inverse_transform(test_dataset.Y.detach().cpu().numpy())
+print(np.linalg.norm(test_recons - test_ground_truth) / np.linalg.norm(test_ground_truth))
+```
+In this code, we evaluate the performance of the trained SHRED model on the test dataset and calculate a metric to quantify the reconstruction accuracy. First, we apply the trained SHRED model (shred) to the input data of the test dataset (test_dataset.X). The model's .detach().cpu().numpy() method is used to detach the output tensor from the computational graph, move it to the CPU, and convert it to a NumPy array. The resulting tensor represents the reconstructed output values for the input sequences in the test dataset.
+
+To compare the reconstructed values with the ground truth, we use the sc.inverse_transform() method to invert the scaling transformation performed during the preprocessing stage. This step restores the values back to their original scale. Similarly, we apply sc.inverse_transform() to the ground truth target values of the test dataset (test_dataset.Y). The resulting arrays test_recons and test_ground_truth now contain the reconstructed and original (ground truth) values, respectively, in their original scales. Next, we calculate the relative reconstruction error by computing the norm (magnitude) of the element-wise difference between test_recons and test_ground_truth, divided by the norm of test_ground_truth. This measure assesses the overall difference between the reconstructed values and the ground truth values. Finally, the relative reconstruction error is printed using print().
 
 ## Sec. IV Computational Results
  
