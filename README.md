@@ -17,6 +17,57 @@ In this assignment, I will evaluate the LSTM model's performance under different
 
 ## Sec. III Algorithm Implementation and Development
 
+### The Code below until said otherwise is given by Professor in this github repository: https://github.com/Jan-Williams/pyshred
+To start, 3 sensor locations are randomly selected and set the trajectory length (lags) to 52, corresponding to one year of measurements:
+```
+num_sensors = 3 
+lags = 52
+load_X = load_data('SST')
+n = load_X.shape[0]
+m = load_X.shape[1]
+sensor_locations = np.random.choice(m, size=num_sensors, replace=False)
+```
+In this code, initial parameters are set where variables num_sensors and lags are set to 3 and 52, respectively, establishing the number of sensors to be sampled from the data and the time lag for the analysis. The dimensions of this matrix are extracted using the shape attribute, with the number of rows (n) and the number of columns (m) being separately stored. Finally, a set of num_sensors sensors is randomly selected from the total available sensors using the np.random.choice function, without replacement. The indices of these selected sensors are stored in the variable sensor_locations.
+
+We now select indices to divide the data into training, validation, and test sets:
+```
+train_indices = np.random.choice(n - lags, size=1000, replace=False)
+mask = np.ones(n - lags)
+mask[train_indices] = 0
+valid_test_indices = np.arange(0, n - lags)[np.where(mask!=0)[0]]
+valid_indices = valid_test_indices[::2]
+test_indices = valid_test_indices[1::2]
+```
+First, 1000 unique random indices are selected from the range [0, n - lags), where n is the number of data instances and lags is the time lag for the analysis, using the np.random.choice function. These indices correspond to the instances that will be included in the training set. The selection is stored in the variable train_indices. Next, a binary mask of size n - lags is created, where each entry is initially set to 1. The mask is then updated such that each entry corresponding to a training index is set to 0. This mask effectively distinguishes between instances chosen for training (0) and those not chosen for training (1). The code then proceeds to identify all indices that are not part of the training set (mask!=0), which are stored in valid_test_indices. These indices will be used to create the validation and test sets. Finally, the validation and test sets are formed by alternatively picking indices from valid_test_indices. The validation set (valid_indices) comprises every second index starting from the first one, while the test set (test_indices) includes every second index starting from the second one. This approach ensures that the validation and test sets are disjoint and cover all non-training instances.
+sklearn's MinMaxScaler is used to preprocess the data for training and we generate input/output pairs for the training, validation, and test sets. 
+```
+sc = MinMaxScaler()
+sc = sc.fit(load_X[train_indices])
+transformed_X = sc.transform(load_X)
+
+### Generate input sequences to a SHRED model
+all_data_in = np.zeros((n - lags, lags, num_sensors))
+for i in range(len(all_data_in)):
+    all_data_in[i] = transformed_X[i:i+lags, sensor_locations]
+
+### Generate training validation and test datasets both for reconstruction of states and forecasting sensors
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+train_data_in = torch.tensor(all_data_in[train_indices], dtype=torch.float32).to(device)
+valid_data_in = torch.tensor(all_data_in[valid_indices], dtype=torch.float32).to(device)
+test_data_in = torch.tensor(all_data_in[test_indices], dtype=torch.float32).to(device)
+
+### -1 to have output be at the same time as final sensor measurements
+train_data_out = torch.tensor(transformed_X[train_indices + lags - 1], dtype=torch.float32).to(device)
+valid_data_out = torch.tensor(transformed_X[valid_indices + lags - 1], dtype=torch.float32).to(device)
+test_data_out = torch.tensor(transformed_X[test_indices + lags - 1], dtype=torch.float32).to(device)
+
+train_dataset = TimeSeriesDataset(train_data_in, train_data_out)
+valid_dataset = TimeSeriesDataset(valid_data_in, valid_data_out)
+test_dataset = TimeSeriesDataset(test_data_in, test_data_out)
+```
+
+
 ## Sec. IV Computational Results
  
 
