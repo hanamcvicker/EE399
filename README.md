@@ -171,6 +171,24 @@ sensor_locations = np.random.choice(m, size=num_sensors, replace=False)
 The line of code sensor_locations = np.random.choice(m, size=num_sensors, replace=False) selects sensor locations randomly from a pool of available locations. The function np.random.choice from the NumPy library is utilized, which samples num_sensors locations without replacement from the integers ranging from 0 to m-1. By setting replace=False, each location is chosen only once. This approach enables the random selection of a subset of sensor locations from a larger set of m available locations, allowing for further analysis or modeling on those specifically chosen sensors.
 
 ## Sec. IV Computational Results
- 
+The Resulting Plots from each question are shown below:
+### 1) Downloading the Example code
+### 2) Plot the results of the Example Code
+
+<img width="856" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/0424e111-bc30-4790-a6a3-7806152aff7a">
+
+<img width="594" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/e884caed-f8f3-4956-aaf5-4db91e19011d">
+
+### 3) Do an analysis of the performance as a function of the time lag variable
+
+<img width="858" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/362af6a3-b177-4e2c-b2a8-6d5c11a8f7ec">
+
+### 4) Do an analysis of the performance as a function of noise (add Gaussian noise to data)
+
+<img width="852" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/1f8b7c18-ea13-4386-acc2-bd0dbb49a00c">
+
+### 5) Do an analysis of the performance as a function of the number of sensors
+
+<img width="869" alt="image" src="https://github.com/hanamcvicker/EE399/assets/72291173/f3ecabbb-3443-4bbd-8dbe-68a67dae7539">
 
 ## Sec. V Summary and Conclusions
