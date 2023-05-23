@@ -96,6 +96,63 @@ In this code, we evaluate the performance of the trained SHRED model on the test
 
 To compare the reconstructed values with the ground truth, we use the sc.inverse_transform() method to invert the scaling transformation performed during the preprocessing stage. This step restores the values back to their original scale. Similarly, we apply sc.inverse_transform() to the ground truth target values of the test dataset (test_dataset.Y). The resulting arrays test_recons and test_ground_truth now contain the reconstructed and original (ground truth) values, respectively, in their original scales. Next, we calculate the relative reconstruction error by computing the norm (magnitude) of the element-wise difference between test_recons and test_ground_truth, divided by the norm of test_ground_truth. This measure assesses the overall difference between the reconstructed values and the ground truth values. Finally, the relative reconstruction error is printed using print().
 
+The results are then plotted and discussed in the results section. 
+
+### For the next part of the assignment, an analysis is done on the performance as a function of the time lag variable, as a function of noise (adding Gaussian noise to the data), and as a function of the number of sensors. 
+### The Code below is written by me, but utilizes code from the previous part
+
+Because the code is very similar and almost the same except for the variables being used, I will only explain the implementation of the first performance as a function of the time lag variable. As you can see in the code posted, the steps are almost exactly the same. 
+
+I start by defining a list of different lag values to test: 
+```
+lags2 = [4, 8, 12, 24, 52]
+```
+
+I then initialize an empty list to store the results:
+```
+results = []
+```
+I then loop over the list of lag values:
+```
+for lag in lags2:
+    # Prepare the input/output pairs for the given lag
+    all_data_in = np.zeros((n - lag, lag, num_sensors))
+    for i in range(len(all_data_in)):
+        all_data_in[i] = transformed_X[i:i+lag, sensor_locations]
+ ```
+ In this code that is being forlooped, an array all_data_in is initialized with zeros. It has dimensions (n - lag, lag, num_sensors), where n represents the total number of data points, lag is the number of previous time steps used as input for prediction, and num_sensors is the number of sensors or features being considered. A loop is then initiated to iterate over each index in all_data_in. For each index i, the code assigns the previous lag time steps of the transformed data transformed_X[i:i+lag, sensor_locations] to the i-th entry of all_data_in. This step creates a sliding window of size lag to extract the input sequence of sensor measurements at each time step. By the end of the loop, all_data_in contains all the input sequences, where each sequence consists of lag time steps and includes the sensor measurements from the specified sensor_locations.
+ 
+ ```
+    # Generate training validation and test datasets both for reconstruction of states and forecasting sensors
+    # The following lines of code remain the same, only replace 'lags' with 'lag'
+    train_data_in = torch.tensor(all_data_in[train_indices], dtype=torch.float32).to(device)
+    valid_data_in = torch.tensor(all_data_in[valid_indices], dtype=torch.float32).to(device)
+    test_data_in = torch.tensor(all_data_in[test_indices], dtype=torch.float32).to(device)
+
+    train_data_out = torch.tensor(transformed_X[train_indices + lag - 1], dtype=torch.float32).to(device)
+    valid_data_out = torch.tensor(transformed_X[valid_indices + lag - 1], dtype=torch.float32).to(device)
+    test_data_out = torch.tensor(transformed_X[test_indices + lag - 1], dtype=torch.float32).to(device)
+
+    train_dataset = TimeSeriesDataset(train_data_in, train_data_out)
+    valid_dataset = TimeSeriesDataset(valid_data_in, valid_data_out)
+    test_dataset = TimeSeriesDataset(test_data_in, test_data_out)
+
+    # Train the model
+    shred = models.SHRED(num_sensors, m, hidden_size=64, hidden_layers=2, l1=350, l2=400, dropout=0.1).to(device)
+    validation_errors = models.fit(shred, train_dataset, valid_dataset, batch_size=64, num_epochs=50, lr=1e-3, verbose=True, patience=5)
+
+    test_recons = sc.inverse_transform(shred(test_dataset.X).detach().cpu().numpy())
+    test_ground_truth = sc.inverse_transform(test_dataset.Y.detach().cpu().numpy())
+    print(np.linalg.norm(test_recons - test_ground_truth) / np.linalg.norm(test_ground_truth))
+
+    # Append the result to the results list
+    results.append(np.linalg.norm(test_recons - test_ground_truth) / np.linalg.norm(test_ground_truth))
+
+# Convert the results to a numpy array for easier handling
+results = np.array(results)
+```
+This code generates a training validation and test datasets both for reconstruction of states and forecasting sensors. It then trains the model  and appends the results to the results list that was initialized previously. The results array is used to plot the data and show the results. Because this code is from the previous task and was already explained, I will not be explaining the implementation since it can be reread from above.
+
 ## Sec. IV Computational Results
  
 
